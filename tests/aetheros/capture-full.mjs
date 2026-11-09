@@ -1,0 +1,16 @@
+import { chromium } from 'playwright';
+import fs from 'fs';
+const BASE = process.env.BASE_URL || 'http://localhost:1425/';
+const outDir = 'screenshots';
+if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+const browser = await chromium.launch({ channel: 'msedge', headless: true });
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+const page = await ctx.newPage();
+await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 20000 });
+await page.waitForTimeout(2200);
+await page.screenshot({ path: `${outDir}/aetheros-full-desktop.png`, fullPage: false });
+await page.evaluate(() => document.dispatchEvent(new CustomEvent('nexus:toggle')));
+await page.waitForTimeout(600);
+await page.screenshot({ path: `${outDir}/aetheros-nexus-menu.png`, fullPage: false });
+console.log('saved');
+await browser.close();

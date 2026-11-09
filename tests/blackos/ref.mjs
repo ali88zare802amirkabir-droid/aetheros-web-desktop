@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const BASE = process.env.BASE_URL || 'http://localhost:1425/';
+const browser = await chromium.launch({channel:'msedge',headless:true});
+const ctx = await browser.newContext({viewport:{width:1440,height:900}});
+const page = await ctx.newPage();
+await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:20000});
+await page.waitForTimeout(1500);
+await page.screenshot({path:'screenshots/blackos-ref.png', fullPage:true});
+console.log('done');
+await browser.close();

@@ -1,0 +1,186 @@
+:root {
+  --ed-bg: var(--glass, rgba(255,255,255,0.72));
+  --ed-panel: var(--glass, rgba(245,245,247,0.88));
+  --ed-border: var(--border, rgba(0,0,0,0.12));
+  --ed-text: var(--text, rgba(0,0,0,0.88));
+  --ed-text2: var(--text-muted, rgba(0,0,0,0.62));
+  --ed-accent: var(--accent, #007aff);
+  --ed-radius: var(--radius, 10px);
+  --ed-blur: var(--glass-blur, 12px);
+  --ed-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, monospace;
+  --ed-font-ui: var(--ui-font, Inter), system-ui, sans-serif;
+  --ed-gutter: 48px;
+}
+
+.dark-mode {
+  --ed-bg: rgba(30,30,34,0.82);
+  --ed-panel: rgba(36,36,40,0.92);
+  --ed-border: rgba(255,255,255,0.12);
+  --ed-text: rgba(255,255,255,0.9);
+  --ed-text2: rgba(255,255,255,0.62);
+}
+
+.ed-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ed-bg);
+  color: var(--ed-text);
+  font-family: var(--ed-font-ui);
+}
+
+.ed-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px 0;
+  background: var(--ed-panel);
+  border-bottom: 1px solid var(--ed-border);
+  overflow-x: auto;
+}
+
+.ed-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+  max-width: 160px;
+}
+
+.ed-tab.active {
+  background: var(--ed-bg);
+  border-color: var(--ed-border);
+  border-bottom-color: transparent;
+}
+
+.ed-tab-dirty::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ed-accent);
+}
+
+.ed-tab-close {
+  border: none;
+  background: transparent;
+  color: var(--ed-text2);
+  cursor: pointer;
+}
+
+.ed-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--ed-panel);
+  border-bottom: 1px solid var(--ed-border);
+}
+
+.ed-findbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--ed-panel);
+  border-bottom: 1px solid var(--ed-border);
+  flex-wrap: wrap;
+}
+
+.ed-findbar input {
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--ed-border);
+  background: var(--ed-bg);
+  color: var(--ed-text);
+  font-size: 12px;
+}
+
+.ed-main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+}
+
+.ed-gutter {
+  width: var(--ed-gutter);
+  text-align: right;
+  padding: 8px 6px;
+  color: var(--ed-text2);
+  font-family: var(--ed-font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  user-select: none;
+  border-inline-end: 1px solid var(--ed-border);
+  overflow: hidden;
+}
+
+.ed-editor-wrap {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.ed-textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  resize: none;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--ed-text);
+  font-family: var(--ed-font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre;
+  tab-size: 2;
+  outline: none;
+}
+
+.ed-textarea.wrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ed-preview-split {
+  width: 50%;
+  border-inline-start: 1px solid var(--ed-border);
+  padding: 10px;
+  overflow: auto;
+  font-family: var(--ed-font-ui);
+}
+
+.ed-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--ed-text2);
+  background: var(--ed-panel);
+  border-top: 1px solid var(--ed-border);
+}
+
+.ed-status-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+[dir="rtl"] .ed-textarea {
+  direction: rtl;
+  text-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-app * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
