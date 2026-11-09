@@ -11,6 +11,12 @@ let previewTimer: number | null = null;
 let previewAppId: string | null = null;
 let trayIv: number | null = null;
 
+const PIN_KEY = 'dock.unpinned.v1';
+function getUnpinned(): Set<string> { try { return new Set(JSON.parse(localStorage.getItem(PIN_KEY) || '[]')); } catch { return new Set(); } }
+function setUnpinned(s: Set<string>) { try { localStorage.setItem(PIN_KEY, JSON.stringify([...s])); } catch {} }
+function isPinned(id: string) { return !getUnpinned().has(id); }
+function togglePin(id: string) { const s = getUnpinned(); if (s.has(id)) s.delete(id); else s.add(id); setUnpinned(s); render(); }
+
 function getDock() { return document.getElementById('dock') as HTMLElement | null; }
 function esc(s: string) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -112,6 +118,85 @@ function appState(appId: string) {
   return { wins, running: wins.length > 0, focused, count: wins.length, anyMin: wins.some(w => w.isMinimized) };
 }
 
+function removeMenus() { document.querySelectorAll('.context-menu, .win-jumplist').forEach(m => m.remove()); }
+function mountMenu(m: HTMLElement, x: number, y: number, fromBottom = false) {
+  document.body.appendChild(m);
+  const pad = 8;
+  const w = m.offsetWidth || 240;
+  const h = m.offsetHeight || 120;
+  m.style.left = Math.max(pad, Math.min(x, window.innerWidth - w - pad)) + 'px';
+  if (fromBottom) m.style.top = Math.max(pad, window.innerHeight - 64 - h) + 'px';
+  else m.style.top = Math.max(pad, Math.min(y, window.innerHeight - h - pad)) + 'px';
+  window.setTimeout(() => document.addEventListener('mousedown', (ev) => { if (!(ev.target as HTMLElement).closest('.context-menu,.win-jumplist')) m.remove(); }, { once: true }), 0);
+  window.setTimeout(() => document.addEventListener('contextmenu', (ev) => { if (!(ev.target as HTMLElement).closest('.context-menu,.win-jumplist')) m.remove(); }, { once: true }), 0);
+}
+
+function showAppJumpList(x: number, y: number, app: { id: string; name: string; icon: string }) {
+  removeMenus();
+  const wins = State.state.windows.filter(w => w.appId === app.id);
+  const pinned = isPinned(app.id);
+  const pos = SettingsStore.get('dock.position') as string || 'bottom';
+  const m = document.createElement('div');
+  m.className = 'context-menu win11-menu dock-ctx win-jumplist';
+  m.setAttribute('role', 'menu');
+  m.innerHTML = `
+    <div class="win-jl-header" data-act="open-main">
+      <img class="win-jl-appicon" src="${esc(app.icon)}" alt="" />
+      <span class="win-jl-appname">${esc(app.name)}</span>
+      <button type="button" class="win-jl-pin" data-act="pin" title="${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}" aria-label="${pinned ? 'Unpin' : 'Pin'}">${pinned ? '📌' : '📍'}</button>
+    </div>
+    <div class="win-jl-sep"></div>
+    ${wins.length ? `<div class="win-jl-group" aria-label="Open windows">${wins.map(w => `
+      <div class="win-jl-item" data-win="${esc(w.id)}" role="menuitem" tabindex="0">
+        <span class="win-jl-wdot${w.id === State.state.activeWindowId ? ' is-active' : ''}${w.isMinimized ? ' is-min' : ''}"></span>
+        <span class="win-jl-wtitle">${esc(w.title || app.name)}</span>
+        <button type="button" class="win-jl-close" data-close="${esc(w.id)}" title="Close window" aria-label="Close window">×</button>
+      </div>`).join('')}</div><div class="win-jl-sep"></div>` : ''}
+    <div class="win-jl-actions">
+      ${!wins.length ? `<button type="button" class="win-jl-action" data-act="open">${esc(app.name)}</button>` : ''}
+      <button type="button" class="win-jl-action" data-act="new">New window</button>
+      ${wins.length ? `<button type="button" class="win-jl-action" data-act="closeall">Close all windows</button>` : ''}
+      <button type="button" class="win-jl-action" data-act="pintext">${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}</button>
+    </div>`;
+  m.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const closeBtn = t.closest('[data-close]') as HTMLElement | null;
+    if (closeBtn?.dataset.close) { e.stopPropagation(); WindowManager.closeWindow(closeBtn.dataset.close); m.remove(); return; }
+    const winItem = t.closest('[data-win]') as HTMLElement | null;
+    if (winItem?.dataset.win) { m.remove(); WindowManager.restoreWindow(winItem.dataset.win); WindowManager.focusWindow(winItem.dataset.win); return; }
+    const act = (t.closest('[data-act]') as HTMLElement | null)?.dataset.act;
+    if (!act) return;
+    m.remove();
+    if (act === 'open' || act === 'open-main') EventBus.emit('openApp', app.id);
+    if (act === 'new') EventBus.emit('openApp', { id: app.id, newInstance: true } as any);
+    if (act === 'closeall') [...wins].forEach(w => WindowManager.closeWindow(w.id));
+    if (act === 'pin' || act === 'pintext') togglePin(app.id);
+  });
+  mountMenu(m, x, y, pos === 'bottom');
+}
+
+function showTaskbarMenu(x: number, y: number) {
+  removeMenus();
+  const pos = SettingsStore.get('dock.position') as string || 'bottom';
+  const m = document.createElement('div');
+  m.className = 'context-menu win11-menu dock-ctx win-taskbar-menu';
+  m.setAttribute('role', 'menu');
+  m.innerHTML = `
+    <div class="win-jl-actions">
+      <button type="button" class="win-jl-action" data-act="settings"><span class="win-jl-ico">⚙</span><span>Taskbar settings</span></button>
+      <div class="win-jl-sep"></div>
+      <button type="button" class="win-jl-action" data-act="desktop"><span class="win-jl-ico">▣</span><span>Show the desktop</span></button>
+    </div>`;
+  m.addEventListener('click', (e) => {
+    const act = (e.target as HTMLElement).closest('[data-act]') as HTMLElement | null;
+    if (!act?.dataset.act) return;
+    m.remove();
+    if (act.dataset.act === 'settings') WindowManager.openApp({ id: 'settings' } as any);
+    if (act.dataset.act === 'desktop') State.state.windows.forEach(w => { if (!w.isMinimized) WindowManager.minimizeWindow(w.id); });
+  });
+  mountMenu(m, x, y, pos === 'bottom');
+}
+
 function render(): void {
   hidePreview();
   if (trayIv) { window.clearInterval(trayIv); trayIv = null; }
@@ -123,12 +208,15 @@ function render(): void {
   nexus.title = 'Nexus';
   nexus.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 4.8L19 10l-4.8 2.2L12 17l-2.2-4.8L5 10l4.8-2.2L12 3z"/><path d="M12 8v8M8 12h8" opacity=".55"/></svg><div class="dock-label">Nexus</div>`;
   nexus.addEventListener('click', () => document.dispatchEvent(new CustomEvent('nexus:toggle')));
+  nexus.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); hidePreview(); showTaskbarMenu(e.clientX, e.clientY); });
   dock.appendChild(nexus);
   const sepN = document.createElement('div');
   sepN.className = 'dock-sep';
   dock.appendChild(sepN);
 
-  for (const app of AppRegistry.list()) {
+  const allApps = AppRegistry.list();
+  const dockApps = allApps.filter(a => isPinned(a.id) || State.state.windows.some(w => w.appId === a.id));
+  for (const app of dockApps) {
     const st = appState(app.id);
     const el = document.createElement('div');
     el.className = 'dock-icon' + (st.running ? ' running' : '') + (st.focused ? ' active' : '');
@@ -140,7 +228,6 @@ function render(): void {
       if (!wins.length) { EventBus.emit('openApp', app.id); return; }
       const active = wins.find(w => w.id === State.state.activeWindowId);
       if (active && !active.isMinimized) {
-        // Windows-like toggle: minimize active instance if it's the focused one
         if (wins.length === 1) { WindowManager.minimizeWindow(active.id); return; }
       }
       if (wins.length > 1) {
@@ -157,22 +244,8 @@ function render(): void {
     el.addEventListener('mouseenter', () => { if (st.running) showPreview(el, app.id); });
     el.addEventListener('mouseleave', () => { if (previewTimer) { window.clearTimeout(previewTimer); previewTimer = null; } window.setTimeout(() => { if (previewEl && !previewEl.matches(':hover')) hidePreview(); }, 120); });
     el.addEventListener('contextmenu', (e) => {
-      e.preventDefault(); hidePreview();
-      const wins = State.state.windows.filter(w => w.appId === app.id);
-      const m = document.createElement('div'); m.className = 'context-menu dock-ctx';
-      if (!wins.length) {
-        const oi=document.createElement('div'); oi.className='context-menu-item'; oi.textContent=`Open ${app.name}`; oi.onclick=()=>{ m.remove(); EventBus.emit('openApp', app.id); }; m.appendChild(oi);
-      } else {
-        wins.forEach(w => { const it = document.createElement('div'); it.className='context-menu-item'; it.textContent = (w.isMinimized?'○ ':'● ') + w.title + (State.state.activeWindowId===w.id?'  ✓':''); it.onclick=()=>{ m.remove(); WindowManager.restoreWindow(w.id); WindowManager.focusWindow(w.id); }; m.appendChild(it); });
-        const sep=document.createElement('div'); sep.className='fm-menu-sep'; m.appendChild(sep);
-        const ni=document.createElement('div'); ni.className='context-menu-item'; ni.textContent='New Window'; ni.onclick=()=>{ m.remove(); EventBus.emit('openApp', {id: app.id, newInstance: true} as any); }; m.appendChild(ni);
-        const ci=document.createElement('div'); ci.className='context-menu-item'; ci.textContent='Close All'; ci.onclick=()=>{ m.remove(); [...wins].forEach(w => WindowManager.closeWindow(w.id)); }; m.appendChild(ci);
-      }
-      document.body.appendChild(m);
-      m.style.left=Math.min(e.clientX, innerWidth-200)+'px';
-      const pos = SettingsStore.get('dock.position') as string || 'bottom';
-      if (pos === 'bottom') m.style.top=(innerHeight-70-m.offsetHeight)+'px'; else m.style.top=Math.min(e.clientY, innerHeight-m.offsetHeight-8)+'px';
-      setTimeout(()=>document.addEventListener('mousedown',()=>m.remove(),{once:true}),0);
+      e.preventDefault(); e.stopPropagation(); hidePreview();
+      showAppJumpList(e.clientX, e.clientY, app);
     });
     dock.appendChild(el);
   }
@@ -227,6 +300,14 @@ export const Dock = {
     render();
     applySettings();
     wireAutoHide();
+    const dock = getDock();
+    dock?.addEventListener('contextmenu', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('.dock-icon') || t.closest('.dock-preview')) return;
+      if (t.closest('.dock-show-desktop')) return;
+      e.preventDefault(); hidePreview();
+      showTaskbarMenu(e.clientX, e.clientY);
+    });
     SettingsStore.subscribe('dock.position', () => applySettings());
     SettingsStore.subscribe('dock.size', () => applySettings());
     SettingsStore.subscribe('dock.magnification', () => applySettings());
