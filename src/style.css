@@ -1220,3 +1220,168 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2
 .win-jl-action:active { background: rgba(255,255,255,0.035); }
 .win-jl-aicon, .win-jl-ico { width: 16px; height: 16px; flex: 0 0 16px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted, rgba(255,255,255,0.72)); }
 .win-jl-aicon svg, .win-jl-ico svg { display: block; }
+
+/* ===== Aether Utility Apps: Calculator, Clock, Calendar ===== */
+.calculator-app, .clock-app, .calendar-app {
+  --app-surface: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  --app-border: color-mix(in srgb, var(--border) 70%, rgba(255,255,255,0.08));
+  --app-glow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 18px 50px rgba(0,0,0,0.22);
+  height: 100%; min-height: 0; box-sizing: border-box;
+  color: var(--text); font-family: Inter, "Segoe UI Variable", system-ui, sans-serif;
+}
+
+/* Calculator */
+.calculator-app {
+  display: flex; flex-direction: column; padding: 14px; gap: 12px;
+  background:
+    radial-gradient(120% 80% at 20% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 45%),
+    radial-gradient(90% 70% at 100% 100%, color-mix(in srgb, var(--accent-2, #22d3ee) 10%, transparent), transparent 50%),
+    linear-gradient(180deg, rgba(18,18,26,0.35), rgba(10,10,16,0.55));
+}
+.calculator-app:focus { outline: none; }
+.calc-display {
+  position: relative; padding: 16px 16px 14px; border-radius: 18px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-glow);
+  backdrop-filter: blur(18px) saturate(140%);
+  overflow: hidden;
+}
+.calc-display::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 35%);
+}
+.calc-expr { min-height: 18px; font: 500 13px/1.2 Inter, system-ui, sans-serif; color: var(--text-muted, rgba(255,255,255,0.55)); text-align: right; letter-spacing: .01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calc-value {
+  margin-top: 4px; font: 650 clamp(34px, 7vw, 46px)/1.05 Inter, "Segoe UI Variable", system-ui, sans-serif;
+  letter-spacing: -0.03em; text-align: right;
+  background: linear-gradient(180deg, #fff, rgba(255,255,255,0.72));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; min-height: 0; }
+.calc-key {
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.035));
+  color: var(--text); font: 600 20px/1 Inter, system-ui, sans-serif;
+  cursor: pointer; min-height: 54px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 18px rgba(0,0,0,0.14);
+  transition: transform .1s ease, background .12s ease, box-shadow .12s ease, border-color .12s ease, filter .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.calc-key:hover { background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05)); border-color: rgba(255,255,255,0.1); }
+.calc-key:active { transform: scale(0.96); filter: brightness(0.98); }
+.calc-key:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 1px; }
+.calc-key.is-fn { color: rgba(255,255,255,0.88); background: linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.045)); font-size: 17px; }
+.calc-key.is-op {
+  color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), color-mix(in srgb, var(--accent-2, #6366f1) 88%, #000));
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 10px 24px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.calc-key.is-op:hover { filter: brightness(1.06); }
+.calc-key.is-eq {
+  color: #062016;
+  background: linear-gradient(180deg, #34d399, #10b981);
+  border-color: rgba(52,211,153,0.35);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 10px 24px rgba(16,185,129,0.22);
+  font-size: 24px;
+}
+.calc-key.is-zero { grid-column: span 2; text-align: left; padding-left: 22px; }
+
+/* Clock */
+.clock-app {
+  display: flex; align-items: center; justify-content: center; padding: 18px;
+  background:
+    radial-gradient(80% 60% at 50% 15%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
+    radial-gradient(70% 50% at 80% 90%, color-mix(in srgb, var(--accent-3, #22d3ee) 10%, transparent), transparent 60%),
+    linear-gradient(180deg, rgba(14,14,22,0.3), rgba(8,8,14,0.55));
+}
+.clock-shell { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; max-width: 320px; }
+.clock-face {
+  position: relative; width: min(240px, 62vw); aspect-ratio: 1; border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 1px 0 rgba(255,255,255,0.1) inset,
+    0 24px 60px rgba(0,0,0,0.35),
+    0 0 50px color-mix(in srgb, var(--accent) 12%, transparent);
+  backdrop-filter: blur(20px) saturate(150%);
+}
+.clock-ring {
+  position: absolute; inset: 10px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.06), transparent 45%), rgba(0,0,0,0.12);
+  box-shadow: inset 0 10px 30px rgba(0,0,0,0.18);
+}
+.clock-ticks { position: absolute; inset: 0; }
+.clock-tick { position: absolute; left: 50%; top: 14px; width: 2px; height: 8px; margin-left: -1px; border-radius: 2px; background: rgba(255,255,255,0.18); transform-origin: 50% calc((min(240px, 62vw) / 2) - 14px); }
+.clock-tick.is-major { height: 12px; width: 2.5px; margin-left: -1.25px; background: rgba(255,255,255,0.42); }
+.clock-hand { position: absolute; left: 50%; bottom: 50%; transform-origin: 50% 100%; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+.clock-h { width: 5px; height: 26%; margin-left: 0; background: linear-gradient(180deg, #fff, rgba(255,255,255,0.7)); z-index: 2; }
+.clock-m { width: 3.5px; height: 36%; margin-left: 0; background: linear-gradient(180deg, #fff, rgba(255,255,255,0.65)); z-index: 3; }
+.clock-s { width: 2px; height: 42%; margin-left: 0; background: linear-gradient(180deg, #fb7185, var(--accent)); z-index: 4; box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent); }
+.clock-cap {
+  position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 999px; z-index: 5;
+  background: linear-gradient(180deg, #fff, color-mix(in srgb, var(--accent) 35%, #fff));
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.15), 0 0 14px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.clock-digital { text-align: center; }
+.clock-time {
+  font: 650 42px/1.05 Inter, "Segoe UI Variable", system-ui, sans-serif; letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #fff, rgba(255,255,255,0.68));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.clock-date { margin-top: 6px; font: 500 14px/1.35 Inter, system-ui, sans-serif; color: var(--text-muted, rgba(255,255,255,0.68)); }
+.clock-zone { margin-top: 4px; font: 600 11px/1.2 Inter, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 70%, rgba(255,255,255,0.5)); }
+
+/* Calendar */
+.calendar-app {
+  display: flex; flex-direction: column; padding: 14px; gap: 10px;
+  background:
+    radial-gradient(100% 70% at 10% 0%, color-mix(in srgb, #ef4444 14%, transparent), transparent 45%),
+    radial-gradient(80% 60% at 100% 100%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 50%),
+    linear-gradient(180deg, rgba(16,16,24,0.3), rgba(8,8,14,0.55));
+}
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cal-title { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cal-month { font: 650 20px/1.15 Inter, system-ui, sans-serif; letter-spacing: -0.02em; }
+.cal-today-btn {
+  border: 0; background: transparent; color: var(--accent); cursor: pointer; padding: 2px 8px; border-radius: 999px;
+  font: 600 11px/1.2 Inter, system-ui, sans-serif; letter-spacing: .02em; text-transform: uppercase;
+  transition: background .12s ease, color .12s ease;
+}
+.cal-today-btn:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.cal-nav {
+  width: 36px; height: 36px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04); color: var(--text); display: grid; place-items: center; cursor: pointer;
+  transition: background .12s ease, border-color .12s ease, transform .1s ease;
+}
+.cal-nav:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
+.cal-nav:active { transform: scale(0.95); }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 2px 2px 0; }
+.cal-weekdays span { text-align: center; font: 600 11px/1 Inter, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted, rgba(255,255,255,0.45)); padding: 6px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; flex: 1; min-height: 0; align-content: start; }
+.cal-cell {
+  position: relative; aspect-ratio: 1; min-height: 36px; border: 1px solid transparent; border-radius: 12px;
+  background: rgba(255,255,255,0.025); color: var(--text); cursor: pointer;
+  display: grid; place-items: center; font: 550 14px/1 Inter, system-ui, sans-serif;
+  transition: background .12s ease, border-color .12s ease, transform .1s ease, box-shadow .12s ease;
+}
+.cal-cell:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.06); }
+.cal-cell:active { transform: scale(0.96); }
+.cal-cell.is-out { color: rgba(255,255,255,0.22); background: transparent; }
+.cal-cell.is-today {
+  color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), color-mix(in srgb, var(--accent-2, #6366f1) 85%, #000));
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset, 0 10px 24px color-mix(in srgb, var(--accent) 24%, transparent);
+  font-weight: 700;
+}
+.cal-cell.is-today:hover { filter: brightness(1.05); }
+.cal-cell:focus-visible, .cal-nav:focus-visible, .cal-today-btn:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .calc-key, .cal-cell, .cal-nav, .clock-hand { transition-duration: 0.01ms !important; }
+}
