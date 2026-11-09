@@ -1,144 +1,259 @@
+/* Nexus menu — iOS-inspired visual system (AetherOS dark adaptation) */
 :root {
-  --nx-bg: var(--bg-glass-strong, rgba(22,14,46,0.82));
-  --nx-surface: rgba(255,255,255,0.04);
-  --nx-border: var(--border, rgba(168,130,255,0.18));
-  --nx-text: var(--text, #f4f0ff);
-  --nx-text2: var(--text-muted, rgba(244,240,255,0.6));
-  --nx-accent: var(--accent, #8b5cf6);
-  --nx-accent2: var(--accent-2, #a78bfa);
-  --nx-radius: 20px;
-  --nx-blur: var(--glass-blur, 30px);
-  --nx-shadow: var(--shadow-lg, 0 24px 80px rgba(0,0,0,0.5));
+  --nx-bg: rgba(28, 28, 32, 0.72);
+  --nx-surface: rgba(255,255,255,0.07);
+  --nx-surface-2: rgba(255,255,255,0.045);
+  --nx-border: rgba(255,255,255,0.12);
+  --nx-sep: rgba(255,255,255,0.09);
+  --nx-text: rgba(255,255,255,0.92);
+  --nx-text2: rgba(255,255,255,0.55);
+  --nx-accent: var(--accent, #0a84ff);
+  --nx-accent2: var(--accent-2, #5e5ce6);
+  --nx-radius: 28px;
+  --nx-radius-group: 16px;
+  --nx-blur: 40px;
+  --nx-shadow: 0 24px 80px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.2);
+  --nx-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --nx-press: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.nx-overlay {
+.nx-overlay.ios-nexus {
   position: fixed;
   inset: 0;
   z-index: 8500;
   display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(14px, 6vh, 54px) 16px 16px;
 }
-.nx-overlay.open { display: block; }
-.nx-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(3,2,8,0.35);
-  backdrop-filter: blur(4px);
-}
-.nx-panel {
+.nx-overlay.ios-nexus.open { display: flex; }
+
+.nx-overlay.ios-nexus .nx-backdrop {
   position: absolute;
-  left: 14px;
-  bottom: calc(var(--dock-h, 48px) + 22px);
-  width: min(560px, calc(100vw - 28px));
-  height: min(540px, calc(100vh - 120px));
+  inset: 0;
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+.nx-overlay.ios-nexus .nx-panel.ios-sheet {
+  position: relative;
+  left: auto; bottom: auto; right: auto;
+  width: min(560px, calc(100vw - 24px));
+  max-height: min(720px, calc(100vh - clamp(28px, 8vh, 90px)));
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, rgba(38,22,76,0.82) 0%, var(--nx-bg) 100%);
+  background: linear-gradient(180deg, rgba(58,58,64,0.58) 0%, rgba(36,36,40,0.72) 100%);
   border: 1px solid var(--nx-border);
   border-radius: var(--nx-radius);
-  box-shadow: var(--nx-shadow), 0 0 0 1px rgba(167,139,250,0.1), 0 0 60px rgba(139,92,246,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
-  backdrop-filter: blur(var(--nx-blur)) saturate(170%);
-  -webkit-backdrop-filter: blur(var(--nx-blur)) saturate(170%);
+  box-shadow: var(--nx-shadow), inset 0 1px 0 rgba(255,255,255,0.12);
+  backdrop-filter: blur(var(--nx-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--nx-blur)) saturate(180%);
   overflow: hidden;
-  transform-origin: bottom left;
-  animation: nx-in 220ms cubic-bezier(0.16,1,0.3,1);
+  transform-origin: top center;
+  animation: ios-sheet-in 260ms var(--nx-ease);
 }
-.nx-panel::before {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(167,139,250,0.45), rgba(34,211,238,0.25), transparent);
-  pointer-events: none;
-  z-index: 1;
-}
-@keyframes nx-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@media (prefers-reduced-motion: reduce) { .nx-panel { animation: none; } }
+.nx-overlay.ios-nexus .nx-panel::before { display: none; }
 
-.nx-search {
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+@keyframes ios-sheet-in {
+  from { opacity: 0; transform: translateY(-10px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.nx-search input {
+@media (prefers-reduced-motion: reduce) {
+  .nx-overlay.ios-nexus .nx-panel.ios-sheet { animation: none; }
+  .ios-app, .ios-rec, .ios-action { transition-duration: 0.01ms !important; }
+}
+
+/* Grabber */
+.ios-grabber {
+  width: 36px; height: 5px; border-radius: 999px;
+  background: rgba(255,255,255,0.22);
+  margin: 10px auto 2px;
+  flex: 0 0 auto;
+}
+
+/* iOS Spotlight-like search */
+.nx-overlay.ios-nexus .nx-search.ios-search {
+  padding: 10px 16px 12px;
+  border-bottom: 0;
+}
+.nx-overlay.ios-nexus .nx-search-wrap { position: relative; }
+.nx-overlay.ios-nexus .nx-search-ico {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: rgba(255,255,255,0.45); pointer-events: none; display: flex;
+}
+.nx-overlay.ios-nexus .nx-search input {
   width: 100%;
   height: 40px;
-  padding: 0 14px 0 38px;
+  padding: 0 14px 0 40px;
   border-radius: 12px;
-  border: 1px solid var(--nx-border);
-  background: rgba(255,255,255,0.04);
+  border: 0;
+  background: rgba(118,118,128,0.24);
   color: var(--nx-text);
-  font-size: 14px;
+  font: 500 17px/1.2 Inter, system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.01em;
   outline: none;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  transition: background 150ms ease, box-shadow 150ms ease;
 }
-.nx-search input:focus { border-color: rgba(167,139,250,0.4); box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
-.nx-search-wrap { position: relative; }
-.nx-search-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--nx-text2); pointer-events: none; display:flex; }
-[dir="rtl"] .nx-search input { padding: 0 38px 0 14px; }
-[dir="rtl"] .nx-search-ico { left: auto; right: 12px; }
+.nx-overlay.ios-nexus .nx-search input::placeholder { color: rgba(255,255,255,0.42); }
+.nx-overlay.ios-nexus .nx-search input:focus {
+  background: rgba(118,118,128,0.32);
+  box-shadow: 0 0 0 3px rgba(10,132,255,0.28), inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+[dir="rtl"] .nx-overlay.ios-nexus .nx-search input { padding: 0 40px 0 14px; }
+[dir="rtl"] .nx-overlay.ios-nexus .nx-search-ico { left: auto; right: 12px; }
 
-.nx-body { flex: 1; min-height: 0; display: flex; }
-.nx-side {
-  width: 148px;
-  border-inline-end: 1px solid rgba(255,255,255,0.06);
-  padding: 10px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+/* Body */
+.nx-overlay.ios-nexus .nx-body.ios-body { flex: 1; min-height: 0; display: flex; }
+.nx-overlay.ios-nexus .nx-main.ios-content {
+  flex: 1; min-width: 0; overflow: auto;
+  padding: 4px 16px 18px;
+  -webkit-overflow-scrolling: touch;
 }
-.nx-nav {
-  display: flex; align-items: center; gap: 10px;
-  height: 36px; padding: 0 10px;
-  border: 0; border-radius: 10px;
-  background: transparent; color: var(--nx-text2);
-  cursor: pointer; text-align: start; font-size: 13px;
-  transition: background 120ms ease, color 120ms ease;
-}
-.nx-nav:hover { background: rgba(255,255,255,0.05); color: var(--nx-text); }
-.nx-nav.active { background: rgba(139,92,246,0.18); color: var(--nx-text); }
-.nx-nav svg { width: 16px; height: 16px; opacity: .9; }
 
-.nx-main { flex: 1; min-width: 0; overflow: auto; padding: 12px 14px; }
-.nx-section-title { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--nx-text2); margin: 4px 0 10px; }
-.nx-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
-.nx-app {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 10px 6px; border-radius: 12px;
-  border: 1px solid transparent; background: transparent;
-  color: var(--nx-text); cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+.ios-section-head { padding: 8px 4px 10px; }
+.nx-overlay.ios-nexus .nx-section-title {
+  font: 600 13px/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--nx-text2);
 }
-.nx-app:hover { background: rgba(139,92,246,0.12); border-color: rgba(167,139,250,0.15); }
-.nx-app:active { transform: scale(0.98); }
-.nx-app img { width: 36px; height: 36px; border-radius: 10px; }
-.nx-app span { font-size: 11.5px; text-align: center; line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.nx-rec-list { display: flex; flex-direction: column; gap: 2px; }
-.nx-rec {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px; border-radius: 10px;
+/* App grid — SpringBoard feel */
+.nx-overlay.ios-nexus .nx-grid.ios-app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px 8px;
+  margin: 2px 0 18px;
+}
+.ios-app {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 4px 2px;
+  border: 0; border-radius: 14px;
+  background: transparent; color: var(--nx-text);
+  cursor: pointer;
+  transition: transform 160ms var(--nx-press), opacity 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ios-app:hover { background: transparent; }
+.ios-app:active { transform: scale(0.92); opacity: 0.85; }
+.ios-app-icon {
+  width: 60px; height: 60px;
+  border-radius: 14px; /* iOS squircle approximation */
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 20px rgba(0,0,0,0.22);
+  display: grid; place-items: center;
+}
+.ios-app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ios-app-label {
+  font: 500 12px/1.15 Inter, system-ui, sans-serif;
+  letter-spacing: -0.005em;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  white-space: normal;
+  color: rgba(255,255,255,0.88);
+}
+
+/* Inset grouped list (iOS Settings style) */
+.ios-group {
+  background: rgba(118,118,128,0.18);
+  border-radius: var(--nx-radius-group);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  margin-bottom: 14px;
+}
+.nx-overlay.ios-nexus .nx-rec-list { display: flex; flex-direction: column; gap: 0; }
+.ios-rec {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0; border-radius: 0;
+  background: transparent; color: var(--nx-text);
+  cursor: pointer; text-align: start;
+  position: relative;
+  transition: background 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ios-rec + .ios-rec::before {
+  content: "";
+  position: absolute;
+  left: 54px; right: 0; top: 0;
+  height: 1px; background: var(--nx-sep);
+}
+[dir="rtl"] .ios-rec + .ios-rec::before { left: 0; right: 54px; }
+.ios-rec:hover { background: rgba(255,255,255,0.04); }
+.ios-rec:active { background: rgba(255,255,255,0.09); }
+.ios-rec-ico {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(180deg, rgba(10,132,255,0.95), rgba(94,92,230,0.9));
+  color: #fff; display: grid; place-items: center; flex: 0 0 auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+}
+.ios-rec-meta { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ios-rec-name { font: 500 16px/1.2 Inter, system-ui, sans-serif; letter-spacing: -0.015em; }
+.ios-rec-sub { font: 400 13px/1.2 Inter, system-ui, sans-serif; color: var(--nx-text2); letter-spacing: -0.005em; }
+.ios-rec-chevron { color: rgba(255,255,255,0.28); font-size: 20px; font-weight: 600; line-height: 1; padding-left: 4px; }
+.ios-empty { padding: 16px 14px; font: 400 15px/1.3 Inter, system-ui, sans-serif; color: var(--nx-text2); text-align: center; }
+
+/* Quick actions (iOS grouped buttons) */
+.ios-actions {
+  background: rgba(118,118,128,0.18);
+  border-radius: var(--nx-radius-group);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+  margin-bottom: 4px;
+}
+.ios-action {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 12px 14px;
   border: 0; background: transparent; color: var(--nx-text);
-  cursor: pointer; text-align: start; width: 100%;
+  cursor: pointer; text-align: start; font: inherit;
+  position: relative; transition: background 120ms ease;
 }
-.nx-rec:hover { background: rgba(255,255,255,0.05); }
-.nx-rec-ico { width: 28px; height: 28px; border-radius: 8px; background: rgba(139,92,246,0.15); display: grid; place-items: center; color: var(--nx-accent2); flex: 0 0 auto; }
-.nx-rec-meta { min-width: 0; }
-.nx-rec-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.nx-rec-sub { font-size: 11px; color: var(--nx-text2); margin-top: 1px; }
+.ios-action + .ios-action::before {
+  content: ""; position: absolute; left: 44px; right: 0; top: 0; height: 1px; background: var(--nx-sep);
+}
+[dir="rtl"] .ios-action + .ios-action::before { left: 0; right: 44px; }
+.ios-action:hover { background: rgba(255,255,255,0.04); }
+.ios-action:active { background: rgba(255,255,255,0.09); }
+.ios-action-ico { color: var(--nx-accent); display: flex; flex: 0 0 auto; }
+.ios-action-label { flex: 1; font: 500 16px/1.2 Inter, system-ui, sans-serif; letter-spacing: -0.015em; }
+.ios-action-chevron { color: rgba(255,255,255,0.28); font-size: 20px; font-weight: 600; }
 
-.nx-footer {
+/* Footer */
+.nx-overlay.ios-nexus .nx-footer.ios-footer {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px;
+  padding: 12px 16px 14px;
   border-top: 1px solid rgba(255,255,255,0.06);
-  background: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.1);
 }
-.nx-profile { display: flex; align-items: center; gap: 10px; }
-.nx-avatar { width: 32px; height: 32px; border-radius: 999px; background: linear-gradient(135deg, var(--nx-accent), var(--nx-accent2)); display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 13px; }
-.nx-profile-name { font-size: 13px; font-weight: 500; }
-.nx-profile-sub { font-size: 11px; color: var(--nx-text2); display: flex; align-items: center; gap: 5px; }
-@keyframes nxOnline { 0%,100% { opacity: .8; } 50% { opacity: 1; box-shadow: 0 0 10px rgba(34,211,238,0.85); } }
-.nx-online { width: 6px; height: 6px; border-radius: 999px; background: #22d3ee; box-shadow: 0 0 6px rgba(34,211,238,0.6); animation: nxOnline 2.4s ease-in-out infinite; }
-.nx-power { border: 1px solid var(--nx-border); background: rgba(255,255,255,0.04); color: var(--nx-text2); border-radius: 10px; padding: 6px 10px; cursor: pointer; font-size: 12px; }
-.nx-power:hover { color: var(--nx-text); background: rgba(255,255,255,0.07); }
+.ios-profile { display: flex; align-items: center; gap: 10px; }
+.ios-avatar {
+  width: 34px; height: 34px; border-radius: 999px;
+  background: linear-gradient(180deg, #5ac8fa, #007aff);
+  display: grid; place-items: center; color: #fff;
+  font: 600 14px/1 Inter, system-ui, sans-serif;
+  box-shadow: 0 2px 8px rgba(0,122,255,0.25);
+}
+.ios-profile-name { font: 600 14px/1.2 Inter, system-ui, sans-serif; letter-spacing: -0.01em; }
+.ios-profile-sub { font: 400 12px/1.2 Inter, system-ui, sans-serif; color: var(--nx-text2); margin-top: 1px; }
 
-[dir="rtl"] .nx-panel { left: auto; right: 14px; transform-origin: bottom right; }
+/* Keep nav selectors harmless if any stale ref exists */
+.nx-overlay.ios-nexus .nx-side { display: none; }
+
+@media (max-width: 520px) {
+  .nx-overlay.ios-nexus { padding: 10px 8px 8px; align-items: flex-end; }
+  .nx-overlay.ios-nexus .nx-panel.ios-sheet {
+    width: 100%; max-height: 88vh;
+    border-radius: 24px 24px 16px 16px;
+    transform-origin: bottom center;
+    animation-name: ios-sheet-up;
+  }
+  @keyframes ios-sheet-up { from { opacity:.6; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+  .nx-overlay.ios-nexus .nx-grid.ios-app-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 4px; }
+  .ios-app-icon { width: 54px; height: 54px; border-radius: 13px; }
+}

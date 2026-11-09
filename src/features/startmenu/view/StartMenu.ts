@@ -6,13 +6,13 @@ import { SettingsStore } from '../../../apps/settings/store';
 function relTime(ts?: number) {
   if (!ts) return '';
   const d = Date.now() - ts;
-  if (d < 60000) return 'just now';
+  if (d < 60000) return 'Just now';
   if (d < 3600000) return `${Math.floor(d / 60000)}m ago`;
   if (d < 86400000) return `${Math.floor(d / 3600000)}h ago`;
   return `${Math.floor(d / 86400000)}d ago`;
 }
 
-function recentFiles(limit = 6): { name: string; path: string; modified: number }[] {
+function recentFiles(limit = 5): { name: string; path: string; modified: number }[] {
   const out: { name: string; path: string; modified: number }[] = [];
   const walk = (path: string, node: any) => {
     if (!node) return;
@@ -38,34 +38,53 @@ export class StartMenu {
   mount() {
     if (this.root) return;
     const root = document.createElement('div');
-    root.className = 'nx-overlay';
+    root.className = 'nx-overlay ios-nexus';
     root.innerHTML = `
       <div class="nx-backdrop" data-close="1"></div>
-      <div class="nx-panel" role="dialog" aria-label="Nexus Start">
-        <div class="nx-search"><div class="nx-search-wrap">
-          <span class="nx-search-ico"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg></span>
-          <input data-k="q" placeholder="Search apps, files, commands..." />
-        </div></div>
-        <div class="nx-body">
-          <nav class="nx-side">
-            <button class="nx-nav active" data-nav="home">Home</button>
-            <button class="nx-nav" data-nav="apps">Apps</button>
-            <button class="nx-nav" data-nav="files">Files</button>
-            <button class="nx-nav" data-nav="settings">Settings</button>
-          </nav>
-          <div class="nx-main">
-            <div class="nx-section-title">Pinned Apps</div>
-            <div class="nx-grid" data-k="apps"></div>
-            <div class="nx-section-title">Recommended</div>
-            <div class="nx-rec-list" data-k="recent"></div>
+      <div class="nx-panel ios-sheet" role="dialog" aria-label="Nexus Search">
+        <div class="ios-grabber" aria-hidden="true"></div>
+        <div class="nx-search ios-search">
+          <div class="nx-search-wrap">
+            <span class="nx-search-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input data-k="q" placeholder="Search" aria-label="Search apps and files" />
           </div>
         </div>
-        <div class="nx-footer">
-          <div class="nx-profile">
-            <div class="nx-avatar">U</div>
-            <div><div class="nx-profile-name" data-k="pname">User</div><div class="nx-profile-sub"><span class="nx-online"></span>Online</div></div>
+        <div class="nx-body ios-body">
+          <div class="nx-main ios-content">
+            <div class="ios-section-head">
+              <span class="nx-section-title">Apps</span>
+            </div>
+            <div class="nx-grid ios-app-grid" data-k="apps"></div>
+            <div class="ios-section-head">
+              <span class="nx-section-title">Suggestions</span>
+            </div>
+            <div class="ios-group">
+              <div class="nx-rec-list" data-k="recent"></div>
+            </div>
+            <div class="ios-actions">
+              <button class="ios-action" data-act="settings">
+                <span class="ios-action-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a2 2 0 1 1-4 0v-.1a1 1 0 0 0-.7-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a2 2 0 1 1 0-4h.1a1 1 0 0 0 .9-.7 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2h.1a1 1 0 0 0 .6-.9V4a2 2 0 1 1 4 0v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1v.1a1 1 0 0 0 .9.6H20a2 2 0 1 1 0 4h-.1a1 1 0 0 0-.9.6Z"/></svg></span>
+                <span class="ios-action-label">Settings</span>
+                <span class="ios-action-chevron" aria-hidden="true">›</span>
+              </button>
+              <button class="ios-action" data-nav="files">
+                <span class="ios-action-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8l-6-4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/><path d="M14 4v4h6"/></svg></span>
+                <span class="ios-action-label">Files</span>
+                <span class="ios-action-chevron" aria-hidden="true">›</span>
+              </button>
+            </div>
           </div>
-          <button class="nx-power" data-act="settings">Settings</button>
+        </div>
+        <div class="nx-footer ios-footer">
+          <div class="nx-profile ios-profile">
+            <div class="nx-avatar ios-avatar">U</div>
+            <div class="ios-profile-meta">
+              <div class="nx-profile-name" data-k="pname">User</div>
+              <div class="nx-profile-sub ios-profile-sub">AetherOS</div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -77,9 +96,8 @@ export class StartMenu {
       const nav = t.closest('[data-nav]') as HTMLElement | null;
       if (nav) {
         const n = nav.dataset.nav;
-        root.querySelectorAll('.nx-nav').forEach(b => b.classList.toggle('active', b === nav));
         if (n === 'settings') { this.close(); WindowManager.openApp({ id: 'settings' }); }
-        if (n === 'apps') this.renderApps((root.querySelector('[data-k="q"]') as HTMLInputElement)?.value || '');
+        if (n === 'files') { this.close(); WindowManager.openApp({ id: 'finder' }); }
       }
       const appBtn = t.closest('[data-app]') as HTMLElement | null;
       if (appBtn?.dataset.app) { this.close(); WindowManager.openApp({ id: appBtn.dataset.app }); }
@@ -102,19 +120,21 @@ export class StartMenu {
     this.renderApps('');
     const pname = this.root.querySelector('[data-k="pname"]');
     if (pname) pname.textContent = (SettingsStore.get('profile.name') as string) || 'User';
-    const rec = recentFiles(6);
+    const av = this.root.querySelector('.nx-avatar');
+    if (av) av.textContent = (((SettingsStore.get('profile.name') as string) || 'U').trim()[0] || 'U').toUpperCase();
+    const rec = recentFiles(5);
     const recEl = this.root.querySelector('[data-k="recent"]');
     if (recEl) {
-      recEl.innerHTML = rec.map(r => `<button class="nx-rec" data-rec="${r.path.replace(/"/g,'&quot;')}"><span class="nx-rec-ico"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/></svg></span><span class="nx-rec-meta"><div class="nx-rec-name">${r.name}</div><div class="nx-rec-sub">${relTime(r.modified)}</div></span></button>`).join('') || '<div class="wg-status-k">No recent files</div>';
+      recEl.innerHTML = rec.map(r => `<button class="nx-rec ios-rec" data-rec="${r.path.replace(/"/g,'&quot;')}"><span class="nx-rec-ico ios-rec-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span><span class="nx-rec-meta ios-rec-meta"><span class="nx-rec-name ios-rec-name">${r.name}</span><span class="nx-rec-sub ios-rec-sub">${relTime(r.modified)}</span></span><span class="ios-rec-chevron" aria-hidden="true">›</span></button>`).join('') || '<div class="ios-empty">No recent files</div>';
     }
   }
 
   renderApps(q: string) {
     if (!this.root) return;
-    const apps = AppRegistry.list().filter(a => !q || a.name.toLowerCase().includes(q.toLowerCase()) || a.id.includes(q.toLowerCase())).slice(0, 8);
+    const apps = AppRegistry.list().filter(a => !q || a.name.toLowerCase().includes(q.toLowerCase()) || a.id.includes(q.toLowerCase()));
     const el = this.root.querySelector('[data-k="apps"]');
     if (el) {
-      el.innerHTML = apps.map(a => `<button class="nx-app" data-app="${a.id}"><img src="${a.icon}" alt="" /><span>${a.name}</span></button>`).join('');
+      el.innerHTML = apps.map(a => `<button class="nx-app ios-app" data-app="${a.id}" aria-label="${a.name}"><span class="ios-app-icon"><img src="${a.icon}" alt="" /></span><span class="ios-app-label">${a.name}</span></button>`).join('') || '<div class="ios-empty">No results</div>';
     }
   }
 
