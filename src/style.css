@@ -1135,28 +1135,44 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2
 
 /* Windows 11-style taskbar context menus / jump lists */
 .win11-menu.dock-ctx {
-  min-width: 284px; max-width: min(360px, calc(100vw - 16px));
-  padding: 4px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bg-glass-strong, rgba(44,44,44,0.96)) 96%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 70%, rgba(255,255,255,0.09));
-  box-shadow: 0 8px 32px rgba(0,0,0,0.34), 0 1px 2px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.07);
-  backdrop-filter: blur(30px) saturate(140%);
-  -webkit-backdrop-filter: blur(30px) saturate(140%);
+  min-width: 290px; max-width: min(368px, calc(100vw - 16px));
+  padding: 5px;
+  border-radius: 12px;
+  /* Latest Win11 Fluent 2 acrylic + macOS liquid-glass vibrancy */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015) 32%, rgba(255,255,255,0.02)),
+    color-mix(in srgb, var(--bg-glass-strong, rgba(32,32,36,0.82)) 84%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(255,255,255,0.14));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 24px 54px rgba(0,0,0,0.38),
+    0 4px 14px rgba(0,0,0,0.18);
+  backdrop-filter: blur(40px) saturate(180%) brightness(1.02);
+  -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.02);
   color: var(--text);
   font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, sans-serif;
+  animation: winMenuIn .14s cubic-bezier(.2,.9,.2,1);
 }
+@keyframes winMenuIn { from { opacity: 0; transform: translateY(4px) scale(0.985); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .win11-menu.dock-ctx { animation: none; } }
 :root[data-theme-pack="blackos"] .win11-menu.dock-ctx {
-  background: linear-gradient(180deg, rgba(42,30,74,0.9), rgba(20,14,40,0.94));
-  border-color: rgba(167,139,250,0.16);
-  box-shadow: 0 18px 50px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  background:
+    linear-gradient(180deg, rgba(167,139,250,0.08), transparent 28%),
+    linear-gradient(180deg, rgba(46,30,82,0.78), rgba(18,13,38,0.86));
+  border-color: rgba(167,139,250,0.2);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 1px 0 rgba(255,255,255,0.09) inset,
+    0 26px 60px rgba(0,0,0,0.5),
+    0 0 28px rgba(139,92,246,0.1);
 }
 .win-jl-header {
   display: flex; align-items: center; gap: 10px;
   min-height: 36px; padding: 4px 8px; margin: 2px 2px 0; border-radius: 5px; cursor: pointer;
   transition: background .08s ease;
 }
-.win-jl-header:hover, .win-jl-header:focus-visible { background: rgba(255,255,255,0.06); outline: none; }
+.win-jl-header:hover, .win-jl-header:focus-visible { background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.045)); box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset; outline: none; }
 .win-jl-appicon { width: 16px; height: 16px; object-fit: contain; flex: 0 0 auto; }
 .win-jl-appname { flex: 1; min-width: 0; font: 600 13px/1.2 "Segoe UI Variable","Segoe UI",Inter,system-ui,sans-serif; }
 .win-jl-pin {
@@ -1174,7 +1190,7 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2
   min-height: 32px; padding: 0 8px 0 10px; margin: 0 2px; border-radius: 5px; cursor: pointer; outline: none;
   transition: background .08s ease;
 }
-.win-jl-item:hover, .win-jl-item:focus-visible { background: rgba(255,255,255,0.06); }
+.win-jl-item:hover, .win-jl-item:focus-visible { background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.045)); box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset; }
 .win-jl-wdot {
   width: 8px; height: 8px; border-radius: 999px; flex: 0 0 auto;
   background: rgba(255,255,255,0.22);
@@ -1196,7 +1212,11 @@ button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2
   font: 400 13px/1.2 "Segoe UI Variable","Segoe UI",Inter,system-ui,sans-serif;
   cursor: pointer; text-align: start; transition: background .08s ease;
 }
-.win-jl-action:hover, .win-jl-action:focus-visible { background: rgba(255,255,255,0.06); outline: none; }
-.win-jl-action:active { background: rgba(255,255,255,0.04); }
+.win-jl-action:hover, .win-jl-action:focus-visible {
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.045));
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+  outline: none;
+}
+.win-jl-action:active { background: rgba(255,255,255,0.035); }
 .win-jl-aicon, .win-jl-ico { width: 16px; height: 16px; flex: 0 0 16px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted, rgba(255,255,255,0.72)); }
 .win-jl-aicon svg, .win-jl-ico svg { display: block; }

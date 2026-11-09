@@ -191,18 +191,12 @@ function showTaskbarMenu(x: number, y: number) {
         <span class="win-jl-aicon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a2 2 0 1 1-4 0v-.1a1 1 0 0 0-.7-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a2 2 0 1 1 0-4h.1a1 1 0 0 0 .9-.7 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2h.1a1 1 0 0 0 .6-.9V4a2 2 0 1 1 4 0v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1v.1a1 1 0 0 0 .9.6H20a2 2 0 1 1 0 4h-.1a1 1 0 0 0-.9.6Z"/></svg></span>
         <span>Taskbar settings</span>
       </button>
-      <div class="win-jl-sep"></div>
-      <button type="button" class="win-jl-action" data-act="desktop" role="menuitem">
-        <span class="win-jl-aicon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="12" height="9" rx="1"/><path d="M8 12v2M5 14h6"/></svg></span>
-        <span>Show the desktop</span>
-      </button>
     </div>`;
   m.addEventListener('click', (e) => {
     const act = (e.target as HTMLElement).closest('[data-act]') as HTMLElement | null;
     if (!act?.dataset.act) return;
     m.remove();
     if (act.dataset.act === 'settings') WindowManager.openApp({ id: 'settings' } as any);
-    if (act.dataset.act === 'desktop') State.state.windows.forEach(w => { if (!w.isMinimized) WindowManager.minimizeWindow(w.id); });
   });
   mountMenu(m, x, y, pos === 'bottom');
 }
