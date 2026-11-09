@@ -131,6 +131,10 @@ function mountMenu(m: HTMLElement, x: number, y: number, fromBottom = false) {
   window.setTimeout(() => document.addEventListener('contextmenu', (ev) => { if (!(ev.target as HTMLElement).closest('.context-menu,.win-jumplist')) m.remove(); }, { once: true }), 0);
 }
 
+const pinSvg = (pinned: boolean) => pinned
+  ? `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182a.5.5 0 1 1-.707-.707l3.182-3.182L2.404 7.233a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/></svg>`
+  : `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="opacity:.72"><path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182a.5.5 0 1 1-.707-.707l3.182-3.182L2.404 7.233a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146zm.364 1.768-3.533 3.533a.5.5 0 0 1-.496.12 4.923 4.923 0 0 0-1.036-.19c-.54-.036-1.028.06-1.338.29L7.06 9.515a.5.5 0 0 1 0 .707l-3.182 3.182 3.182-3.182a.5.5 0 0 1 .707 0l3.272 3.273c.23-.31.327-.798.29-1.338a4.922 4.922 0 0 0-.19-1.036.5.5 0 0 1 .12-.496l3.533-3.533-4.408-4.408z"/></svg>`;
+
 function showAppJumpList(x: number, y: number, app: { id: string; name: string; icon: string }) {
   removeMenus();
   const wins = State.state.windows.filter(w => w.appId === app.id);
@@ -140,23 +144,23 @@ function showAppJumpList(x: number, y: number, app: { id: string; name: string; 
   m.className = 'context-menu win11-menu dock-ctx win-jumplist';
   m.setAttribute('role', 'menu');
   m.innerHTML = `
-    <div class="win-jl-header" data-act="open-main">
+    <div class="win-jl-header" data-act="open-main" role="menuitem" tabindex="0">
       <img class="win-jl-appicon" src="${esc(app.icon)}" alt="" />
       <span class="win-jl-appname">${esc(app.name)}</span>
-      <button type="button" class="win-jl-pin" data-act="pin" title="${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}" aria-label="${pinned ? 'Unpin' : 'Pin'}">${pinned ? '📌' : '📍'}</button>
+      <button type="button" class="win-jl-pin${pinned ? ' is-pinned' : ''}" data-act="pin" title="${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}" aria-label="${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}">${pinSvg(pinned)}</button>
     </div>
-    <div class="win-jl-sep"></div>
-    ${wins.length ? `<div class="win-jl-group" aria-label="Open windows">${wins.map(w => `
+    ${wins.length ? `<div class="win-jl-sep"></div><div class="win-jl-group" aria-label="Open windows">${wins.map(w => `
       <div class="win-jl-item" data-win="${esc(w.id)}" role="menuitem" tabindex="0">
-        <span class="win-jl-wdot${w.id === State.state.activeWindowId ? ' is-active' : ''}${w.isMinimized ? ' is-min' : ''}"></span>
+        <span class="win-jl-wdot${w.id === State.state.activeWindowId ? ' is-active' : ''}${w.isMinimized ? ' is-min' : ''}" aria-hidden="true"></span>
         <span class="win-jl-wtitle">${esc(w.title || app.name)}</span>
-        <button type="button" class="win-jl-close" data-close="${esc(w.id)}" title="Close window" aria-label="Close window">×</button>
-      </div>`).join('')}</div><div class="win-jl-sep"></div>` : ''}
-    <div class="win-jl-actions">
-      ${!wins.length ? `<button type="button" class="win-jl-action" data-act="open">${esc(app.name)}</button>` : ''}
-      <button type="button" class="win-jl-action" data-act="new">New window</button>
-      ${wins.length ? `<button type="button" class="win-jl-action" data-act="closeall">Close all windows</button>` : ''}
-      <button type="button" class="win-jl-action" data-act="pintext">${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}</button>
+        <button type="button" class="win-jl-close" data-close="${esc(w.id)}" title="Close window" aria-label="Close window"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 1l8 8M9 1 1 9"/></svg></button>
+      </div>`).join('')}</div>` : ''}
+    <div class="win-jl-sep"></div>
+    <div class="win-jl-actions" role="group">
+      ${!wins.length ? `<button type="button" class="win-jl-action" data-act="open" role="menuitem"><span class="win-jl-aicon"></span><span>${esc(app.name)}</span></button>` : ''}
+      <button type="button" class="win-jl-action" data-act="new" role="menuitem"><span class="win-jl-aicon"></span><span>New window</span></button>
+      ${wins.length ? `<button type="button" class="win-jl-action" data-act="closeall" role="menuitem"><span class="win-jl-aicon"></span><span>${wins.length > 1 ? 'Close all windows' : 'Close window'}</span></button>` : ''}
+      <button type="button" class="win-jl-action" data-act="pintext" role="menuitem"><span class="win-jl-aicon win-jl-aicon-pin">${pinSvg(pinned)}</span><span>${pinned ? 'Unpin from taskbar' : 'Pin to taskbar'}</span></button>
     </div>`;
   m.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
@@ -182,10 +186,16 @@ function showTaskbarMenu(x: number, y: number) {
   m.className = 'context-menu win11-menu dock-ctx win-taskbar-menu';
   m.setAttribute('role', 'menu');
   m.innerHTML = `
-    <div class="win-jl-actions">
-      <button type="button" class="win-jl-action" data-act="settings"><span class="win-jl-ico">⚙</span><span>Taskbar settings</span></button>
+    <div class="win-jl-actions" role="group">
+      <button type="button" class="win-jl-action" data-act="settings" role="menuitem">
+        <span class="win-jl-aicon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1 1 0 0 0 .2 1.1l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a2 2 0 1 1-4 0v-.1a1 1 0 0 0-.7-.9 1 1 0 0 0-1.1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a2 2 0 1 1 0-4h.1a1 1 0 0 0 .9-.7 1 1 0 0 0-.2-1.1l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1 1 0 0 0 1.1.2h.1a1 1 0 0 0 .6-.9V4a2 2 0 1 1 4 0v.1a1 1 0 0 0 .6.9 1 1 0 0 0 1.1-.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1 1 0 0 0-.2 1.1v.1a1 1 0 0 0 .9.6H20a2 2 0 1 1 0 4h-.1a1 1 0 0 0-.9.6Z"/></svg></span>
+        <span>Taskbar settings</span>
+      </button>
       <div class="win-jl-sep"></div>
-      <button type="button" class="win-jl-action" data-act="desktop"><span class="win-jl-ico">▣</span><span>Show the desktop</span></button>
+      <button type="button" class="win-jl-action" data-act="desktop" role="menuitem">
+        <span class="win-jl-aicon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="12" height="9" rx="1"/><path d="M8 12v2M5 14h6"/></svg></span>
+        <span>Show the desktop</span>
+      </button>
     </div>`;
   m.addEventListener('click', (e) => {
     const act = (e.target as HTMLElement).closest('[data-act]') as HTMLElement | null;
