@@ -52,7 +52,7 @@ function render(): void {
   const nexus = document.createElement('div');
   nexus.className = 'dock-icon dock-nexus';
   nexus.setAttribute('aria-label', 'Nexus');
-  nexus.title = 'Nexus (Spotlight)';
+  nexus.title = 'Nexus';
   nexus.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 4.8L19 10l-4.8 2.2L12 17l-2.2-4.8L5 10l4.8-2.2L12 3z"/><path d="M12 8v8M8 12h8" opacity=".55"/></svg><div class="dock-label">Nexus</div>`;
   nexus.addEventListener('click', () => document.dispatchEvent(new CustomEvent('nexus:toggle')));
   dock.appendChild(nexus);

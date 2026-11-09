@@ -34,7 +34,9 @@
   background: rgba(0,0,0,0.28);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
+  transition: opacity 170ms ease;
 }
+.nx-overlay.ios-nexus.closing .nx-backdrop { opacity: 0; }
 
 .nx-overlay.ios-nexus .nx-panel.ios-sheet {
   position: relative;
@@ -52,7 +54,9 @@
   overflow: hidden;
   transform-origin: top center;
   animation: ios-sheet-in 260ms var(--nx-ease);
+  transition: opacity 170ms ease, transform 170ms var(--nx-ease);
 }
+.nx-overlay.ios-nexus.closing .nx-panel.ios-sheet { opacity: 0; transform: translateY(-6px) scale(0.99); }
 .nx-overlay.ios-nexus .nx-panel::before { display: none; }
 
 @keyframes ios-sheet-in {
@@ -142,11 +146,17 @@
   width: 60px; height: 60px;
   border-radius: 14px; /* iOS squircle approximation */
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
-  box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset, 0 8px 20px rgba(0,0,0,0.22);
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset, 0 8px 20px rgba(0,0,0,0.22);
   display: grid; place-items: center;
+  padding: 10px;
+  box-sizing: border-box;
 }
-.ios-app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ios-app-icon img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+.ios-app:focus-visible, .ios-rec:focus-visible, .ios-action:focus-visible {
+  outline: 2px solid rgba(10,132,255,0.65);
+  outline-offset: 2px;
+}
 .ios-app-label {
   font: 500 12px/1.15 Inter, system-ui, sans-serif;
   letter-spacing: -0.005em;
@@ -197,7 +207,9 @@
 .ios-rec-name { font: 500 16px/1.2 Inter, system-ui, sans-serif; letter-spacing: -0.015em; }
 .ios-rec-sub { font: 400 13px/1.2 Inter, system-ui, sans-serif; color: var(--nx-text2); letter-spacing: -0.005em; }
 .ios-rec-chevron { color: rgba(255,255,255,0.28); font-size: 20px; font-weight: 600; line-height: 1; padding-left: 4px; }
+[dir="rtl"] .ios-rec-chevron, [dir="rtl"] .ios-action-chevron { display: inline-block; transform: scaleX(-1); }
 .ios-empty { padding: 16px 14px; font: 400 15px/1.3 Inter, system-ui, sans-serif; color: var(--nx-text2); text-align: center; }
+.ios-search-empty { padding: 24px 14px; }
 
 /* Quick actions (iOS grouped buttons) */
 .ios-actions {
