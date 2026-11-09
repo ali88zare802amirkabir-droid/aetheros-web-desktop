@@ -89,6 +89,7 @@ class WM {
       width: size.width, height: size.height,
       zIndex: ++this.nextZIndex, isMaximized: false, isMinimized: false,
     };
+    if (args) this.pendingArgs.set(win.id, args);
     State.state.windows.push(win);
     State.save();
     this.renderWindow(win);

@@ -7,9 +7,15 @@ import { TerminalApp } from './Terminal';
 import { CalculatorApp } from './Calculator';
 import { ClockApp } from './Clock';
 import { CalendarApp } from './Calendar';
+import { CameraApp } from './Camera';
+import { PhotosApp } from './Photos';
+import { PreviewApp } from './Preview';
 
 export function registerDefaultApps(): void {
   AppRegistry.register(FinderApp);
+  AppRegistry.register(PhotosApp);
+  AppRegistry.register(CameraApp);
+  AppRegistry.register(PreviewApp);
   AppRegistry.register(NotesApp);
   AppRegistry.register(CalculatorApp);
   AppRegistry.register(ClockApp);
