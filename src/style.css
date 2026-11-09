@@ -311,33 +311,45 @@ body {
 /* Desktop icons — future glyphs */
 :root[data-theme-pack="blackos"] .desktop-icon {
   border-radius: var(--radius-btn);
-  transition: background var(--dur-fast) var(--ease-future), transform var(--dur-fast) var(--ease-future);
+  padding: 8px 6px;
+  transition: background var(--dur-fast) var(--ease-future), transform var(--dur-fast) var(--ease-future), box-shadow var(--dur-med) var(--ease-future);
 }
 :root[data-theme-pack="blackos"] .desktop-icon:hover {
-  background: rgba(139,92,246,0.1);
+  background: linear-gradient(180deg, rgba(139,92,246,0.14) 0%, rgba(139,92,246,0.06) 100%);
+  box-shadow: 0 0 0 1px rgba(167,139,250,0.12) inset;
+  transform: translateY(-1px);
 }
+:root[data-theme-pack="blackos"] .desktop-icon:active { transform: translateY(0) scale(0.99); }
 :root[data-theme-pack="blackos"] .desktop-icon.selected {
-  background: rgba(139,92,246,0.18);
-  outline: 1px solid var(--border-bright);
-  box-shadow: 0 0 0 1px rgba(139,92,246,0.15) inset, 0 8px 24px rgba(0,0,0,0.25);
+  background: linear-gradient(180deg, rgba(139,92,246,0.22) 0%, rgba(139,92,246,0.1) 100%);
+  outline: 1px solid rgba(167,139,250,0.35);
+  box-shadow: 0 0 0 1px rgba(139,92,246,0.12) inset, 0 0 24px rgba(139,92,246,0.12), 0 10px 28px rgba(0,0,0,0.28);
 }
+:root[data-theme-pack="blackos"] .desktop-icon-img { transition: transform var(--dur-fast) var(--ease-future), filter var(--dur-fast) var(--ease-future); }
+:root[data-theme-pack="blackos"] .desktop-icon:hover .desktop-icon-img { transform: translateY(-2px); }
 :root[data-theme-pack="blackos"] .desktop-icon img {
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.42)) drop-shadow(0 0 1px rgba(167,139,250,0.15));
+}
+:root[data-theme-pack="blackos"] .desktop-icon.selected img {
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45)) drop-shadow(0 0 12px rgba(139,92,246,0.22));
 }
 :root[data-theme-pack="blackos"] .desktop-icon-label {
   color: var(--text);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8), 0 0 16px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 18px rgba(0,0,0,0.55);
   font-size: 11.5px;
   font-weight: 500;
   margin-top: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  max-width: 92px;
 }
 :root[data-theme-pack="blackos"] .desktop-icon.selected .desktop-icon-label {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background: linear-gradient(135deg, rgba(139,92,246,0.95), rgba(167,139,250,0.9));
   color: #fff;
-  text-shadow: none;
-  padding: 2px 8px;
-  border-radius: 6px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(139,92,246,0.28);
 }
+:root[data-theme-pack="blackos"] .desktop-icon.desktop-system .desktop-icon-label { color: rgba(244,240,255,0.92); }
 
 /* Context menus */
 :root[data-theme-pack="blackos"] .context-menu {
@@ -458,7 +470,9 @@ body {
 .desktop-props-actions { margin-top: 12px; display: flex; justify-content: flex-end; }
 .desktop-props-actions button { padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-glass); color: var(--text); cursor: pointer; }
 .context-menu-item.danger:hover { background: #ef4444; color: #fff; }
-:root[data-theme-pack="blackos"] .desktop-marquee { border-color: rgba(167,139,250,.7); background: rgba(139,92,246,.16); box-shadow: 0 0 0 1px rgba(34,211,238,.12) inset; }
+:root[data-theme-pack="blackos"] .desktop-marquee { border-color: rgba(167,139,250,.72); background: rgba(139,92,246,.16); box-shadow: 0 0 0 1px rgba(34,211,238,.12) inset, 0 0 18px rgba(139,92,246,.12); }
+:root[data-theme-pack="blackos"] .snap-preview { border-color: rgba(167,139,250,.55); background: rgba(139,92,246,.14); box-shadow: 0 0 0 1px rgba(34,211,238,.1) inset, 0 0 24px rgba(139,92,246,.12); }
+:root[data-theme-pack="blackos"] .wg-rail.dragging { filter: drop-shadow(0 12px 32px rgba(0,0,0,0.35)); }
 
 /* Context menu */
 .context-menu {
