@@ -25,6 +25,7 @@ let menu: HTMLElement | null = null;
 let marquee: HTMLElement | null = null;
 let marqueeStart: { x: number; y: number } | null = null;
 let propsEl: HTMLElement | null = null;
+let lastItems: DesktopItem[] = [];
 
 const SORT_KEY = 'desktop.sortBy';
 function sortBy(): 'name' | 'date' {
@@ -120,7 +121,7 @@ function doCopy(op: 'copy' | 'cut') {
   const names = selectedVfsNames();
   if (!names.length) return;
   clip = { op, names, parent: '' };
-  render();
+  syncSelection();
 }
 function doPaste() {
   if (!clip) return;
@@ -203,7 +204,7 @@ function showDesktopMenu(x: number, y: number) {
 
 function showItemMenu(x: number, y: number, item: DesktopItem) {
   closeMenu(); closeProps();
-  if (!selected.has(item.key)) { selected = new Set([item.key]); anchor = item.key; render(); }
+  if (!selected.has(item.key)) { selected = new Set([item.key]); anchor = item.key; syncSelection(); }
   menu = document.createElement('div');
   menu.className = 'context-menu desktop-menu';
   menu.style.left = `${x}px`; menu.style.top = `${y}px`;
@@ -245,6 +246,17 @@ function showItemMenu(x: number, y: number, item: DesktopItem) {
   if (r.bottom > innerHeight) menu.style.top = `${Math.max(4, innerHeight - r.height - 4)}px`;
 }
 
+function syncSelection(): void {
+  const desk = document.getElementById('desktop');
+  if (!desk) return;
+  desk.querySelectorAll<HTMLElement>('.desktop-icon').forEach(el => {
+    const key = el.dataset.key || '';
+    const name = key.startsWith('v:') ? key.slice(2) : '';
+    el.classList.toggle('selected', selected.has(key));
+    el.classList.toggle('is-cut', !!name && clip?.op === 'cut' && clip.names.includes(name));
+  });
+}
+
 function render(): void {
   const desk = document.getElementById('desktop');
   if (!desk) return;
@@ -255,6 +267,7 @@ function render(): void {
   closeMenu();
 
   const items = allItems();
+  lastItems = items;
   // prune selection
   const valid = new Set(items.map(i => i.key));
   selected = new Set([...selected].filter(k => valid.has(k)));
@@ -279,14 +292,14 @@ function render(): void {
     el.style.top = `${top0 + row * gapY}px`;
     if (pos === 'left') { el.style.left = `${pad + col * colW}px`; el.style.right = 'auto'; }
     else { el.style.right = `${pad + col * colW}px`; el.style.left = 'auto'; }
-    el.innerHTML = `<span class="desktop-icon-img"><img src="${item.icon}" alt="" style="width:${iconSize}px;height:${iconSize}px"></span><span class="desktop-icon-label">${esc(item.name)}</span>`;
+    el.innerHTML = `<span class="desktop-icon-img"><img src="${item.icon}" alt="" draggable="false" style="width:${iconSize}px;height:${iconSize}px"></span><span class="desktop-icon-label">${esc(item.name)}</span>`;
     el.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
       e.stopPropagation();
       const multi = e.ctrlKey || e.metaKey;
       const range = e.shiftKey && anchor;
       if (range) {
-        const keys = allItems().map(it => it.key);
+        const keys = lastItems.map(it => it.key);
         const a = keys.indexOf(anchor!); const b = keys.indexOf(item.key);
         if (a >= 0 && b >= 0) {
           const [s,e2] = a < b ? [a,b] : [b,a];
@@ -296,18 +309,19 @@ function render(): void {
         if (selected.has(item.key)) selected.delete(item.key); else selected.add(item.key);
         anchor = item.key;
       } else {
-        if (!selected.has(item.key)) selected = new Set([item.key]);
+        if (!selected.has(item.key) || selected.size > 1) selected = new Set([item.key]);
         anchor = item.key;
       }
-      render();
+      syncSelection();
     });
     el.addEventListener('dblclick', (e) => {
-      e.stopPropagation();
+      e.stopPropagation(); e.preventDefault();
       if (item.kind === 'system') openSystem(item.systemId);
       else openVfs(item);
     });
     el.addEventListener('contextmenu', (e) => {
       e.preventDefault(); e.stopPropagation();
+      if (!selected.has(item.key)) { selected = new Set([item.key]); anchor = item.key; syncSelection(); }
       showItemMenu(e.clientX, e.clientY, item);
     });
     desk.appendChild(el);
@@ -319,7 +333,7 @@ function onDeskMouseDown(e: MouseEvent) {
   if (!desk || e.target !== desk || e.button !== 0) return;
   closeMenu(); closeProps();
   if (!e.ctrlKey && !e.metaKey) selected.clear();
-  anchor = null; render();
+  anchor = null; syncSelection();
   const rect = desk.getBoundingClientRect();
   marqueeStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
   marquee = document.createElement('div');
@@ -359,11 +373,11 @@ function onKey(e: KeyboardEvent) {
   if (inField) return;
   if (!inDesktop && !selected.size) return;
   const mod = e.ctrlKey || e.metaKey;
-  if (mod && e.key.toLowerCase() === 'a') { e.preventDefault(); selected = new Set(allItems().map(i => i.key)); render(); return; }
+  if (mod && e.key.toLowerCase() === 'a') { e.preventDefault(); selected = new Set(lastItems.map(i => i.key)); syncSelection(); return; }
   if (mod && e.key.toLowerCase() === 'c') { e.preventDefault(); doCopy('copy'); return; }
   if (mod && e.key.toLowerCase() === 'x') { e.preventDefault(); doCopy('cut'); return; }
   if (mod && e.key.toLowerCase() === 'v') { e.preventDefault(); doPaste(); return; }
-  if (e.key === 'Escape') { selected.clear(); closeMenu(); closeProps(); render(); return; }
+  if (e.key === 'Escape') { selected.clear(); closeMenu(); closeProps(); syncSelection(); return; }
   if (e.key === 'F2') { const n = selectedVfsNames(); if (n.length === 1) renameItem(n[0]); return; }
   if (e.key === 'Enter') { if (selected.size) openSelected(); return; }
   if (e.key === 'Delete' || e.key === 'Backspace') {
